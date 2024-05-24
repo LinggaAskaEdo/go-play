@@ -54,13 +54,13 @@ func (s *scheduler) Serve() {
 	if s.opt.RSS.Enabled {
 		rssScheduler, err := gocron.NewScheduler()
 		if err != nil {
-			s.logger.Error("Error when ", err)
+			s.logger.Error(err)
 		}
 
 		// add a job to the scheduler
 		rssJob, err := rssScheduler.NewJob(
 			gocron.CronJob(
-				"*/5 * * * *",
+				s.opt.RSS.Period,
 				false,
 			),
 			gocron.NewTask(
@@ -71,13 +71,13 @@ func (s *scheduler) Serve() {
 			),
 		)
 		if err != nil {
-			s.logger.Error("Error when ", err)
+			s.logger.Error(err)
 		}
 
 		rssScheduler.Start()
 		err = rssJob.RunNow()
 		if err != nil {
-			s.logger.Error("Error when ", err)
+			s.logger.Error(err)
 		}
 	}
 }

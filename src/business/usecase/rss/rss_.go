@@ -3,7 +3,6 @@ package rss
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strings"
 	"time"
 
@@ -15,17 +14,13 @@ import (
 func (r *rssUsecase) GetLatestNews(ctx context.Context) error {
 	start := time.Now()
 
-	// Create a helper function for preparing failure results
-	fail := func(err error) error {
-		return fmt.Errorf("GetLatestNews: %v", err)
-	}
-
 	counter := 0
 
 	doc, err := xmlquery.LoadURL(r.opt.RSSUrl)
 	if err != nil {
-		r.logger.Error("Error when ", err)
-		return fail(err)
+		r.logger.Error(err)
+
+		return err
 	}
 
 	v := entity.NewsArticle{}
@@ -44,8 +39,7 @@ func (r *rssUsecase) GetLatestNews(ctx context.Context) error {
 
 			docDetail, err := htmlquery.LoadURL(link)
 			if err != nil {
-				r.logger.Error("Error when ", err)
-				panic(err)
+				r.logger.Error(err)
 			}
 
 			docDataDetail := htmlquery.FindOne(docDetail, "//div[@class = 'post-content clearfix']")
@@ -62,8 +56,9 @@ func (r *rssUsecase) GetLatestNews(ctx context.Context) error {
 
 			timePub, err := time.Parse(time.RFC1123Z, pubDate)
 			if err != nil {
-				r.logger.Error("Error when ", err)
-				return fail(err)
+				r.logger.Error(err)
+
+				return err
 			}
 
 			v.PublishedDate = sql.NullTime{Time: timePub, Valid: true}
@@ -76,16 +71,17 @@ func (r *rssUsecase) GetLatestNews(ctx context.Context) error {
 
 		status, err := r.rss.GetNewsByUrl(ctx, v.URL)
 		if err != nil {
-			r.logger.Error("Error when ", err)
+			r.logger.Error(err)
 		}
 
-		r.logger.Info("URL: ", v.URL, ", status: ", status)
+		r.logger.Debug("URL: ", v.URL, ", Status: ", status)
 
 		if !status {
 			_, err := r.rss.CreateNews(ctx, v)
 			if err != nil {
-				r.logger.Error("Error when ", err)
-				return fail(err)
+				r.logger.Error(err)
+
+				return err
 			}
 
 			counter++

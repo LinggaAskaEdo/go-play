@@ -22,9 +22,6 @@ outputs:
     format: f1
     prefix: module
 loggers:
-  - name: root
-    level: info
-    outputs: ["r1", "c1"]
-  - name: a/b
+  - name: SYS
     level: info
     outputs: ["r1", "c1"]

@@ -2,8 +2,15 @@ package main
 
 import (
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/spf13/viper"
+)
+
+const (
+	DefaultMaxJitter = 2000
+	DefaultMinJitter = 100
 )
 
 type envConfigs struct {
@@ -12,10 +19,11 @@ type envConfigs struct {
 	LogConfigName string `mapstructure:"LOG_CONFIG_NAME"`
 
 	// Database Config
+	DatabaseDriver   string `mapstructure:"DATABASE_DRIVER"`
 	DatabaseUser     string `mapstructure:"DATABASE_USER"`
 	DatabasePassword string `mapstructure:"DATABASE_PASSWORD"`
 	DatabaseName     string `mapstructure:"DATABASE_NAME"`
-	DatabaseUrl      string `mapstructure:"DATABASE_URL"`
+	DatabaseHost      string `mapstructure:"DATABASE_HOST"`
 	DatabasePort     string `mapstructure:"DATABASE_PORT"`
 
 	// RSS Config
@@ -44,4 +52,14 @@ func loadEnvVariables() (config *envConfigs) {
 	}
 
 	return
+}
+
+func SleepWithJitter() {
+	min := DefaultMinJitter
+	max := DefaultMaxJitter
+
+	source := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(source)
+	rnd := rng.Intn(max-min) + min
+	time.Sleep(time.Duration(rnd) * time.Millisecond)
 }

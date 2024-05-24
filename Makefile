@@ -1,10 +1,12 @@
 .PHONY: build
 build:
 	@go mod tidy && \
-	go mod vendor && \
 	go build -o ./build/app ./src/cmd
+
+.PHONY: vendor
+vendor:
+	@go mod vendor
 
 .PHONY: run
 run:
 	@./build/app
-	

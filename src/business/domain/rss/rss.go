@@ -2,8 +2,8 @@ package rss
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/linggaaskaedo/go-play/src/business/entity"
 	"github.com/xtfly/log4g/api"
 )
@@ -15,9 +15,15 @@ type DomainItf interface {
 
 type rssDomain struct {
 	logger api.Logger
-	sql0   *sql.DB
+	sql0   *sqlx.DB
 }
 
-func InitRSSDomain(logger api.Logger, sql0 *sql.DB) DomainItf {
-	return &rssDomain{logger: logger, sql0: sql0}
+func InitRSSDomain(
+	logger api.Logger,
+	sql0 *sqlx.DB,
+) DomainItf {
+	return &rssDomain{
+		logger: logger,
+		sql0:   sql0,
+	}
 }

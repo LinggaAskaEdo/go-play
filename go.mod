@@ -6,15 +6,17 @@ require (
 	github.com/antchfx/htmlquery v1.3.1
 	github.com/antchfx/xmlquery v1.4.0
 	github.com/go-co-op/gocron/v2 v2.5.0
-	github.com/go-sql-driver/mysql v1.8.1
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/spf13/viper v1.18.2
 	github.com/xtfly/log4g v0.1.0
 )
 
+require filippo.io/edwards25519 v1.1.0 // indirect
+
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/antchfx/xpath v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

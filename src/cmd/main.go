@@ -11,13 +11,14 @@ import (
 	"github.com/linggaaskaedo/go-play/src/business/usecase/rss"
 	schedulerhandler "github.com/linggaaskaedo/go-play/src/handler/scheduler"
 
-	// grace "github.com/linggaaskaedo/go-play/stdlib/grace"
+	// app "github.com/linggaaskaedo/go-play/stdlib/app"
 	log "github.com/linggaaskaedo/go-play/stdlib/logger"
 	libsql "github.com/linggaaskaedo/go-play/stdlib/sql"
 )
 
 var (
 	// Resource
+	// apps       app.App
 	logger     log.Logger
 	sqlClient0 libsql.SQL
 	// app        grace.App
@@ -39,22 +40,24 @@ func main() {
 	SleepWithJitter()
 
 	// Set up logging configuration using environment variables
-	logConfig := log.LogConfig{
+	logConfig := log.Options{
 		LogConfigPath: EnvConfigs.LogConfigPath,
 		LogConfigName: EnvConfigs.LogConfigName,
 	}
 
-	logger, err := log.Init(&logConfig)
+	logger, mlogger, err := log.Init(&logConfig)
 	if err != nil {
 		panic(err)
 	}
+	defer mlogger.Close()
 
 	// Set up database configuration using environment variables
-	databaseConfig := libsql.DBConfig{
+	databaseConfig := libsql.Options{
+		DatabaseDriver:   EnvConfigs.DatabaseDriver,
 		DatabaseUser:     EnvConfigs.DatabaseUser,
 		DatabasePassword: EnvConfigs.DatabasePassword,
 		DatabaseName:     EnvConfigs.DatabaseName,
-		DatabaseUrl:      EnvConfigs.DatabaseUrl,
+		DatabaseHost:     EnvConfigs.DatabaseHost,
 		DatabasePort:     EnvConfigs.DatabasePort,
 	}
 
@@ -66,6 +69,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer sqlClient0.Close()
 
 	// Construct domain
 	dom = domain.Init(
@@ -102,3 +106,14 @@ func main() {
 
 	fmt.Println("Application Terminated !!!")
 }
+
+// func main() {
+// 	defer func() {
+// 		if sqlClient0 != nil {
+// 			sqlClient0.Stop()
+// 		}
+// 		apps.Stop()
+// 	}()
+
+// 	apps.Serve()
+// }

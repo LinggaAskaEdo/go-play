@@ -2,7 +2,7 @@ package rss
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
 
 	"github.com/linggaaskaedo/go-play/src/business/entity"
 )
@@ -17,29 +17,28 @@ func (r *rssDomain) GetNewsByUrl(ctx context.Context, url string) (bool, error) 
 }
 
 func (r *rssDomain) CreateNews(ctx context.Context, v entity.NewsArticle) (entity.NewsArticle, error) {
-	// Create a helper function for preparing failure results
-	fail := func(err error) (entity.NewsArticle, error) {
-		return v, fmt.Errorf("CreateNews: %v", err)
-	}
-
 	// Get a Tx for making transaction requests
-	// tx, err := r.sql.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault})
-	tx, err := r.sql0.BeginTx(ctx, nil)
+	tx, err := r.sql0.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault})
+	// tx, err := r.sql0.BeginTx(ctx, nil)
 	if err != nil {
-		return fail(err)
+		r.logger.Error(err)
+
+		return v, err
 	}
 	defer tx.Rollback()
 
 	// Create News
 	tx, v, err = r.createSQLNews(ctx, tx, v)
 	if err != nil {
+		r.logger.Error(err)
 		tx.Rollback()
-		return fail(err)
+
+		return v, err
 	}
 
 	// Commit
 	if err := tx.Commit(); err != nil {
-		return fail(err)
+		return v, err
 	}
 
 	return v, nil
